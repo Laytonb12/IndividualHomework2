@@ -2,17 +2,15 @@ package databasePart1;
 
 import java.sql.*;
 
-/**
- * The QuestionAnswerDatabaseHelper class is responsible for managing the database operations
- * for questions and answers, using the same structured approach as DatabaseHelper.
- */
+
 public class QuestionAnswerDatabaseHelper {
 
     // JDBC driver name and database URL 
+	//uses JDBC driver to help with databasehelper
     static final String JDBC_DRIVER = "org.h2.Driver";   
     static final String DB_URL = "jdbc:h2:~/FoundationDatabase";  
 
-    // Database credentials 
+    // these are the database credentials used to connect
     static final String USER = "sa"; 
     static final String PASS = ""; 
 
@@ -25,7 +23,7 @@ public class QuestionAnswerDatabaseHelper {
             e.printStackTrace();
         }
     }
- // Insert a new answer
+ // this inserts a new answer
     public void insertAnswer(int questionId, String text, String reviewStatus, int studentId) throws SQLException {
         String query = "INSERT INTO answers (question_id, text, review_status, student_id) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -37,7 +35,7 @@ public class QuestionAnswerDatabaseHelper {
         }
     }
 
-    // Fetch all answers for a specific question
+    // this fetches all answers for a specific question
     public ResultSet getAnswersForQuestion(int questionId) throws SQLException {
         String query = "SELECT * FROM answers WHERE question_id = ?";
         PreparedStatement pstmt = connection.prepareStatement(query);
@@ -47,10 +45,10 @@ public class QuestionAnswerDatabaseHelper {
 
     public void connectToDatabase() throws SQLException {
         try {
-            Class.forName(JDBC_DRIVER); // Load the JDBC driver
+            Class.forName(JDBC_DRIVER); // loads the JDBC driver
             System.out.println("Connecting to database...");
             connection = DriverManager.getConnection(DB_URL, USER, PASS);
-            createTables();  // Ensure tables exist
+            createTables();  // makes sure that the tables exist
             checkTables();   // Debugging step to confirm table creation
         } catch (ClassNotFoundException e) {
             System.err.println("JDBC Driver not found: " + e.getMessage());
@@ -59,7 +57,7 @@ public class QuestionAnswerDatabaseHelper {
 
     private void createTables() throws SQLException {
         try (Statement stmt = connection.createStatement()) {
-            // Create the questions table
+            // this will create the questions table
             String questionsTable = "CREATE TABLE IF NOT EXISTS questions ("
                     + "id INT AUTO_INCREMENT PRIMARY KEY, "
                     + "title VARCHAR(255) NOT NULL, "
@@ -69,7 +67,7 @@ public class QuestionAnswerDatabaseHelper {
                     + "student_id INT NOT NULL)";
             stmt.execute(questionsTable);
 
-            // Create the answers table
+            // and then this will create the answers table
             String answersTable = "CREATE TABLE IF NOT EXISTS answers ("
                     + "id INT AUTO_INCREMENT PRIMARY KEY, "
                     + "question_id INT NOT NULL, "
@@ -95,7 +93,7 @@ public class QuestionAnswerDatabaseHelper {
         }
     }
 
-    // Insert a new question
+    // Method to insert a new question
     public void insertQuestion(String title, String description, String status, int studentId) throws SQLException {
         String query = "INSERT INTO questions (title, description, status, student_id) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -107,14 +105,14 @@ public class QuestionAnswerDatabaseHelper {
         }
     }
 
-    // Fetch all questions
+    // this retrieves all of the questions
     public ResultSet getAllQuestions() throws SQLException {
         String query = "SELECT * FROM questions";
         Statement stmt = connection.createStatement();
         return stmt.executeQuery(query);
     }
 
-    // Close connection
+    // ends the connection by closing it 
     public void closeConnection() {
         try {
             if (connection != null) connection.close();
