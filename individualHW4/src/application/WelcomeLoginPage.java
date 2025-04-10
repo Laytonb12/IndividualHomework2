@@ -1,0 +1,77 @@
+package application;
+
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.application.Platform;
+import databasePart1.*;
+
+/**
+ * The WelcomeLoginPage class displays a welcome screen for authenticated users.
+ * It allows users to navigate to their respective pages based on their role or quit the application.
+ */
+public class WelcomeLoginPage {
+
+    private final DatabaseHelper databaseHelper;
+
+    public WelcomeLoginPage(DatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
+    }
+
+    public void show(Stage primaryStage, User user) {
+
+        VBox layout = new VBox(5);
+        layout.setStyle("-fx-alignment: center; -fx-padding: 20;");
+
+        Label welcomeLabel = new Label("Welcome!!");
+        welcomeLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+        // Button to navigate to the user's respective page based on their role
+        Button continueButton = new Button("Continue to your Page");
+        continueButton.setOnAction(a -> {
+            String role = user.getRole();
+            System.out.println(role);
+
+            if (role.equalsIgnoreCase("admin")) {
+                new AdminHomePage(databaseHelper, user.getUserName()).show(primaryStage);
+            } else if (role.equalsIgnoreCase("user")) {
+                new UserHomePage(databaseHelper).show(primaryStage);
+            } else if (role.equalsIgnoreCase("staff")) {
+                new StaffHomePage(databaseHelper, user.getUserName()).show(primaryStage);
+            } else {
+                System.out.println("Unknown role: " + role);
+            }
+        });
+
+        // Button to quit the application
+        Button quitButton = new Button("Quit");
+        quitButton.setOnAction(a -> {
+            databaseHelper.closeConnection();
+            Platform.exit(); // Exit the JavaFX application
+        });
+
+        // "Invite" button for admin to generate invitation codes
+        if ("admin".equalsIgnoreCase(user.getRole())) {
+            Button inviteButton = new Button("Invite");
+            inviteButton.setOnAction(a -> {
+                new InvitationPage().show(databaseHelper, primaryStage);
+            });
+            layout.getChildren().add(inviteButton);
+        }
+
+        // Navigation button to easily go around the application rather than exiting and starting the application again
+        Button returnHome = new Button("Return Home");
+        returnHome.setOnAction(a -> {
+            new SetupLoginSelectionPage(databaseHelper).show(primaryStage);
+        });
+
+        layout.getChildren().addAll(welcomeLabel, continueButton, quitButton, returnHome);
+
+        Scene welcomeScene = new Scene(layout, 800, 400);
+
+        // Set the scene to primary stage
+        primaryStage.setScene(welcomeScene);
+        primaryStage.setTitle("Welcome Page");
+    }
+}
